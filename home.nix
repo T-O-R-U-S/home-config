@@ -41,19 +41,22 @@
         git
         gh
         trash-cli
+        mold
+        llvm
+        gcc
   ];
 
   # Let Home Manager install and manage itself.
   programs.home-manager.enable = true;
 
   home.shellAliases = {
-      nixedit = "nix-build edit";
+      nixedit = "sudo nixos-rebuild edit";
       nixswitch = "sudo nixos-rebuild switch";
       nixmod = "nixedit && gum confirm \"Switch to config?\" && nixswitch";
       homeedit = "home-manager edit";
       homeswitch = "home-manager switch";
       homemod = "homeedit && gum confirm \"Switch to config?\" && homeswitch";
-      vimmod = "nvim $HOME/.config/home-manager/vimConfig/(gum choose \"init.lua\" \"init.vim\")";
+      vimmod = "nvim (ls $XDG_CONFIG_HOME/home-manager/vimConfig/ | gum filter) && gum confirm \"Switch to config?\" && homeswitch";
       rm = "trash-rm";
   };
 
@@ -69,14 +72,17 @@
         # traditional lua require() does not work; this is why I have to manually concatenate
         extraLuaConfig = 
           lib.concatStrings (map (name: ((builtins.readFile ./vimConfig/${name}.lua) + "\n"))
-            # Add any lua files that you wish to add to the config here!
-            ["init" "coc" "bubbles"]);
+            # Add any lua files that you wish to add to your config here!
+            ["start_screen" "init" "coc" "bubbles"]);
         plugins = with pkgs.vimPlugins; [
-		vim-monokai-pro
+                vim-monokai-pro
+                vim-numbertoggle
 
 		vim-nix
 
-                vim-startify
+                dashboard-nvim
+
+                Shade-nvim
 
 		coc-nvim
 		coc-rust-analyzer
@@ -90,6 +96,8 @@
                 nvim-web-devicons
 
                 telescope-nvim
+                
+                vim-sensible
 	];
   };
 }
