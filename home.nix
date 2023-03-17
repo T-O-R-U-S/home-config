@@ -57,6 +57,9 @@
       homeswitch = "home-manager switch";
       homemod = "homeedit && gum confirm \"Switch to config?\" && homeswitch";
       vimmod = "nvim (ls $XDG_CONFIG_HOME/home-manager/vimConfig/ | gum filter) && gum confirm \"Switch to config?\" && homeswitch";
+      homesync = "bash -c \"cd $XDG_CONFIG_HOME/home-manager && git push && git pull\"";
+      g = "git";
+      gp = "git push";
       rm = "trash-rm";
   };
 
