@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ lib, config, pkgs, ... }:
 
 {
   # Home Manager needs a bit of information about you and the
@@ -40,10 +40,22 @@
 	nix
         git
         gh
+        trash-cli
   ];
 
   # Let Home Manager install and manage itself.
   programs.home-manager.enable = true;
+
+  home.shellAliases = {
+      nixedit = "nix-build edit";
+      nixswitch = "sudo nixos-rebuild switch";
+      nixmod = "nixedit && gum confirm \"Switch to config?\" && nixswitch";
+      homeedit = "home-manager edit";
+      homeswitch = "home-manager switch";
+      homemod = "homeedit && gum confirm \"Switch to config?\" && homeswitch";
+      vimmod = "nvim $HOME/.config/home-manager/vimConfig/(gum choose \"init.lua\" \"init.vim\")";
+      rm = "trash-rm";
+  };
 
   programs.fish.enable = true;
 
@@ -54,11 +66,17 @@
 	vimAlias = true;
         enable = true;
         extraConfig = builtins.readFile ./vimConfig/init.vim;
-        extraLuaConfig = builtins.readFile ./vimConfig/init.lua;
-	plugins = with pkgs.vimPlugins; [
+        # traditional lua require() does not work; this is why I have to manually concatenate
+        extraLuaConfig = 
+          lib.concatStrings (map (name: ((builtins.readFile ./vimConfig/${name}.lua) + "\n"))
+            # Add any lua files that you wish to add to the config here!
+            ["init" "coc" "bubbles"]);
+        plugins = with pkgs.vimPlugins; [
 		vim-monokai-pro
 
 		vim-nix
+
+                vim-startify
 
 		coc-nvim
 		coc-rust-analyzer
